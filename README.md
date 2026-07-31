@@ -1,172 +1,169 @@
-# [SVFAP: Self-supervised Video Facial Affect Perceiver](https://ieeexplore.ieee.org/abstract/document/10623380)
+# DG-SVFAP: Dual-Stream Visual-Geometric Spatiotemporal Facial Action Prior
 
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/svfap-self-supervised-video-facial-affect/dynamic-facial-expression-recognition-on-dfew)](https://paperswithcode.com/sota/dynamic-facial-expression-recognition-on-dfew?p=svfap-self-supervised-video-facial-affect)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/svfap-self-supervised-video-facial-affect/dynamic-facial-expression-recognition-on)](https://paperswithcode.com/sota/dynamic-facial-expression-recognition-on?p=svfap-self-supervised-video-facial-affect)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/svfap-self-supervised-video-facial-affect/dynamic-facial-expression-recognition-on-mafw)](https://paperswithcode.com/sota/dynamic-facial-expression-recognition-on-mafw?p=svfap-self-supervised-video-facial-affect)
+DG-SVFAP is a dual-stream deep learning architecture for **engagement detection in online meetings and e-learning platforms**. It extends [SVFAP](https://doi.org/10.1109/TAFFC.2024.3432380) (Self-supervised Video Facial Affect Perceiver) with a dedicated facial-landmark stream, fused through a lightweight Transformer, to jointly capture appearance-level spatiotemporal patterns and structured facial geometry (gaze, head pose, eye blinks).
 
-> [[arXiv]](https://arxiv.org/abs/2401.00416), [[IEEE Xplore]](https://ieeexplore.ieee.org/abstract/document/10623380) <br>
-> [Licai Sun](https://scholar.google.com/citations?user=7qo_cTcAAAAJ&hl=en&oi=ao), [Zheng Lian](https://scholar.google.com/citations?user=S34nWz0AAAAJ&hl=en), Kexin Wang, Yu He, Mingyu Xu, Haiyang Sun, [Bin Liu](https://scholar.google.com/citations?user=UEB_5QEAAAAJ&hl=en), and [Jianhua Tao](https://scholar.google.com/citations?user=781jbHMAAAAJ&hl=en)<br>
-> University of Chinese Academy of Sciences & Institute of Automation, Chinese Academy of Sciences & Tsinghua University<br>
+The model achieves **71.9% validation accuracy** and **71.2% test accuracy** on the [EngageNet](https://doi.org/10.1145/3577190.3614164) dataset, outperforming baselines including MARLIN, TCCT-Net, and Ordinal ST-GCN.
 
-## 📰 News
-**[2024.09.24]** We upload the code, pre-trained and fine-tuned models.<br>
-**[2024.07.28]** Our paper is accepted by IEEE Transactions on Affective Computing.<br>
+A live demo application, **SmartMeet**, is deployed at [smartmeet-platform.vercel.app](https://smartmeet-platform.vercel.app/), running real-time engagement inference in the browser with ~37ms latency per 10-second clip on a single T4 GPU, supporting up to 540 concurrent participants.
 
-## ✨ Overview
+---
 
+## ✨ Key Contributions
 
-<p align="center">
-  <img src="figs/Overview.png" width=100%> <br>
-  Overview of SVFAP.
-</p>
+- **Dual-Stream Architecture** — Extends SVFAP by adding a parallel facial-landmark stream alongside the RGB video stream.
+- **Cross-Modal Fusion Module** — Concatenates RGB and landmark features and refines them via a lightweight Transformer encoder.
+- **Landmark-Augmented Geometric Supervision** — Uses MediaPipe-extracted facial landmarks to capture gaze direction, head pose, and eye blink patterns.
+- **SOTA Performance on EngageNet** — Outperforms all compared baselines.
+- **SmartMeet Deployment** — Browser-based, real-time engagement detection platform.
 
+---
 
-<p align="center">
-  <img src="figs/TPSBT.png" width=100%> <br>
-  Encoder architecture (i.e., TPSBT) in SVFAP.
-</p>
-
-Abstract: Video-based facial affect analysis has recently attracted increasing attention owing to its critical role in human-computer interaction. Previous studies mainly focus on developing various deep learning architectures and training them in a fully supervised manner. Although significant progress has been achieved by these supervised methods, the longstanding lack of large-scale high-quality labeled data severely hinders their further improvements. Motivated by the recent success of self-supervised learning in computer vision, this paper introduces a self-supervised approach, termed Self-supervised Video Facial Affect Perceiver (SVFAP), to address the dilemma faced by supervised methods. Specifically, SVFAP leverages masked facial video autoencoding to perform self-supervised pre-training on massive unlabeled facial videos. Considering that large spatiotemporal redundancy exists in facial videos, we propose a novel temporal pyramid and spatial bottleneck Transformer as the encoder of SVFAP, which not only largely reduces computational costs but also achieves excellent performance. To verify the effectiveness of our method, we conduct experiments on nine datasets spanning three downstream tasks, including dynamic facial expression recognition, dimensional emotion recognition, and personality recognition. Comprehensive results demonstrate that SVFAP can learn powerful affect-related representations via large-scale self-supervised pre-training and it significantly outperforms previous state-of-the-art methods on all datasets.
-
-## 🚀 Main Results
-
-<p align="center">
-  <img src="figs/radar_plot.png" width=65%> <br>
-   Comparison with state-of-the-art methods on 9 datasets.
-</p>
-
-Please check our paper to see detailed results on each dataset.
-
-
-
-## 🔨 Installation
-
-Main prerequisites:
-
-* `Python 3.8`
-* `PyTorch 1.7.1 (cuda 10.2)`
-* `timm==0.4.12`
-* `einops==0.6.1`
-* `decord==0.6.0`
-* `scikit-learn=1.1.3`
-* `scipy=1.10.1`
-* `pandas==1.5.3`
-* `numpy=1.23.4`
-* `opencv-python=4.7.0.72`
-* `tensorboardX=2.6.1`
-
-If some are missing, please refer to [environment.yml](environment.yml) for more details.
-
-
-## ➡️ Data Preparation
-
-Please follow the files (e.g., [dfew.py](preprocess/dfew.py)) in [preprocess](preprocess) for data preparation.
-
-Specifically, you need to generate annotations for dataloader ("<path_to_video> <video_class>" in annotations). 
-The annotation usually includes `train.csv`, `val.csv` and `test.csv`. The format of `*.csv` file is like:
+## 🏗️ Architecture
 
 ```
-dataset_root/video_1  label_1
-dataset_root/video_2  label_2
-dataset_root/video_3  label_3
-...
-dataset_root/video_N  label_N
+                 ┌─────────────────────┐
+Video Frames ───▶│   SVFAP (RGB Stream) │──▶ f_rgb (B, 512)
+(B,C,T,H,W)      │  Vision Transformer  │
+                 └─────────────────────┘
+                                              ┌───────────────┐
+                                              │  Concatenate  │
+Landmarks   ───▶┌──────────────────────┐     │  + Linear Proj│──▶ Transformer
+(B,T,L)         │ Landmark Stream       │────▶│  (768 → 512)  │    Fusion (×2)
+                │ Linear Proj + Pos Enc │     └───────────────┘        │
+                │ + Transformer (×4)    │                              ▼
+                │ + Temporal Mean Pool  │                     Classification Head
+                └──────────────────────┘──▶ f_lm (B, 256)      (Linear → K classes)
 ```
 
-An example of [train.csv](saved/data/dfew/org/split01/train.csv) of DFEW fold1 (fd1) is shown as follows:
+**Components:**
 
+| Module | Description |
+|---|---|
+| **RGB Stream** | SVFAP backbone (pre-trained on VoxCeleb2), outputs pooled feature `f_rgb ∈ R^512` |
+| **Landmark Stream** | Linear projection + learnable temporal positional encoding → 4-layer Transformer encoder → temporal mean pooling → `f_lm ∈ R^256` |
+| **Fusion Module** | Concatenation → linear projection (768→512) → 2-layer Transformer encoder for cross-modal attention |
+| **Classification Head** | Linear layer mapping fused features to engagement class scores |
+
+---
+
+## 📊 Results
+
+### SOTA Comparison (EngageNet Validation Set)
+
+| Method | Validation Accuracy |
+|---|---|
+| ResNet-TCN | 54.2% |
+| CNN-LSTM | 65.2% |
+| CNN-BiLSTM | 66.1% |
+| MARLIN | 68.4% |
+| TCCT-Net | 68.9% |
+| Ordinal ST-GCN | 71.2% |
+| **DG-SVFAP (Ours)** | **71.9%** |
+
+### Ablation Study
+
+| Configuration | Validation Accuracy |
+|---|---|
+| Landmark Stream Only | 64.5% |
+| SVFAP (RGB only) | 69.0% |
+| Full Model w/o Augmentation | 66.0% |
+| **DG-SVFAP (Full)** | **71.9%** |
+
+---
+
+## 📁 Dataset
+
+Trained and evaluated on **[EngageNet](https://doi.org/10.1145/3577190.3614164)**:
+- 31 hours of video, 127 participants, varied lighting conditions
+- 11.2k video clips → 7.9k train / 2.2k test / 1k validation
+- Annotated into 4 engagement levels (5th "Subject Not Present" class excluded during preprocessing)
+- 16 frames sampled per clip, resized to 160×160
+- Facial landmarks pre-extracted per frame via MediaPipe and stored as `.npy` files (zero-filled when detection fails)
+
+The RGB backbone is initialized from an SVFAP checkpoint pre-trained on VoxCeleb2 (self-supervised, 1M+ video segments, 6,000+ speakers, 145 nationalities). The landmark stream, fusion module, and classification head are trained from scratch, with the full model fine-tuned end-to-end.
+
+---
+
+## 🚀 SmartMeet — Live Deployment
+
+SmartMeet is a browser-based engagement detection platform built on top of DG-SVFAP:
+
+- **Client-side**: face detection and landmark extraction run in-browser (no software install required)
+- **Server-side**: inference on a T4 GPU backend
+- **Latency**: ~37ms per 10-second clip
+- **Scale**: supports up to 540 concurrent participants; horizontally scalable across backend instances
+
+🔗 Try it: [smartmeet-platform.vercel.app](https://smartmeet-platform.vercel.app/)
+
+---
+
+## 🛠️ Setup
+
+```bash
+git clone https://github.com/Salal04/DG-SVFAP.git
+cd DG-SVFAP
+pip install -r requirements.txt
 ```
-/data/ycs/AC/Dataset/DFEW/Clip/jpg_256/02522 5
-/data/ycs/AC/Dataset/DFEW/Clip/jpg_256/02536 5
-/data/ycs/AC/Dataset/DFEW/Clip/jpg_256/02578 6
+
+### Training
+
+```bash
+python train.py \
+  --dataset engagenet \
+  --backbone svfap_checkpoint.pth \
+  --epochs 20 \
+  --batch_size 4
 ```
 
-Note that, `label` for the pre-training dataset (i.e., VoxCeleb2) is dummy label, you can simply use `0` (see [voxceleb2.py](preprocess/voxceleb2.py)).
+### Inference
 
-
-## 🔄 Pre-training SVFAP
-
-- VoxCeleb2
-
-    ```
-    sh scripts/voxceleb2/pretrain_svfap_base.sh
-    ```
-    
-    You can download our pre-trained model on VoxCeleb2 from [here](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EUhhmb_5-ltMt7P7pjm3D1IBkdREeGnOrAW4kGrfEZSFxA?e=Iqarze) and put it into [this folder](saved/model/pretraining/voxceleb2/svfap_pretrain_base_patch16_160_frame_16x4_tube_mask_ratio_0.9_e100).
-
-## ⤴️ Fine-tuning with pre-trained models
-
-- DFEW
-
-    ```
-    sh scripts/dfew/finetune_svfap_base.sh
-    ```
-
-    The fine-tuned checkpoints and logs across five folds on DFEW are provided as follows: 
-    |  Fold    | UAR        | WR       |      Fine-tuned   Model            |
-    | :------: | :--------: | :------: | :-----------------------:          |
-    |  1       | 63.63      | 75.31    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/ETyu-mn8WyVCti6ifvs7ePMBBm0rV4HyEKNrJVIory3VPA?e=pGEYRA) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EXEnKAHX2ZxPrWvUAJ9Glg0B6GuYbw8ox9Zs3jn7lJ7jJA?e=ffXMQK) | 
-    |  2       | 58.82      | 71.68    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/ESGtilAWM8lJm9TUpTVOcysB11kZjUyFHfqArfyLDDcfcw?e=xDpxUb) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EfkLBkkmGqpPigAzL_S_FFABfuOShaNkrlcsSJLFrw2nHw?e=mKagKP) | 
-    |  3       | 64.88      | 74.96    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EXRgNapDf1tOv9y1ddW1AkQBOeQNvDk-4YAcf9Gq9VPJ1g?e=bNfvaG) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/ESbBQRwY--9Iuah3lUuuglkBwwkevZF4ftGKEDMO-HhxUA?e=3C2rkm) | 
-    |  4       | 63.73      | 74.65    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/ES9drCuXPyBFj8ogdGI_vbgB9wKuk2TAechC2m0p4P0Fkg?e=30yufp) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EaOR9NCzaYVNuqop89cNI94BlqrzeiRmXP-amDL2tTCw5g?e=obLurU) | 
-    |  5       | 68.39      | 77.44    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EWPC0RKo9g9AkdMAzByllkcBY7vPha1jGKw_AHYHrDztsQ?e=fLxkpe) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EUDW_x4ly-hNlUs-PhSqKMMBRnP1ku16eu--dS9KrgeT6Q?e=I4VlyF) |
-    |  Total (Reproduced)   | 63.89      | 74.81    | - |
-    |  Total (Reported)     | 62.83      | 74.27    | - |
-
-    Note that we lost the original ckpt for this dataset. However, the reproduced result is better than that reported in the paper.
-
-- FERV39k
-
-    ```
-    sh scripts/ferv39k/finetune_svfap_base.sh
-    ```
-      
-    The fine-tuned checkpoints and logs on FERV39k are provided as follows:
-    |  Version    | UAR        | WR       |      Fine-tuned   Model            |
-    | :------:    | :--------: | :------: | :-----------------------:          |
-    |  Reproduced | 43.05      | 52.86    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EYTAPbF2rt1Oo0ESuXWmTaYByZpTeNGWvAv9UjO4k1oomA?e=ClHfxJ) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EeiFyC-HLaBAntblXgeOt5sBB5KJJttxbQn7iMlotUvX2A?e=OqqIST) |
-    |  Reported   | 42.14      | 52.29    | -        | 
-  
-    Note that we lost the original ckpt for this dataset. However, the reproduced result is better than that reported in the paper.
-- MAFW
-
-    ```
-    sh scripts/mafw/finetune_svfap_base.sh
-    ```
-    
-    The fine-tuned checkpoints and logs across five folds on MAFW are provided as follows: 
-    |  Fold    | UAR        | WR       |      Fine-tuned   Model            |
-    | :------: | :--------: | :------: | :-----------------------:          |
-    |  1       | 38.40      | 49.10    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/Eb_Yv4I6cQxLu5xd92rDqTYBCSPMQ9uMQTrOcunXfGpx9Q?e=tpvm53) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EYdknPrtbo1Mt1NYjUqJtsIBVzBCPIU-HPPwhCcuvUg1hA?e=bKnU4U) | 
-    |  2       | 40.94      | 53.95    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EVwFn7PV-LJNiXcTEZZVtOoBvlxu8RvTj3sSN9RZQPGCwg?e=4JaHG5) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EUWnPxO1gbNInVOeFaUPL8EBzfPvfWKaxidusQv8_J6h2Q?e=853E0o) | 
-    |  3       | 46.27      | 59.68    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EZHAxnIfRPxIkE-HURMdITwBkS3SUSlt52d-dyaiDtKQWQ?e=Xhacur) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/Eftx7YovMn9Mqn6FwfsQFdoBCFBxDu4fSWnw9307Xs_OBA?e=F0r91e) | 
-    |  4       | 47.78      | 61.30    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EXGKZ00eHgdJtimGsDB7-pkBZmJs_q2QEQG2l3P042XuLg?e=vN2G3E) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EaBj2GjlldBKt8kwxeve01QBOISd2PuvR16CLT2GOVZ7Ww?e=aofdJD) | 
-    |  5       | 44.17      | 57.56    | [log](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/EXFC7KBKtz5JrDvOnc450TEB0R-Ey3UegqpaqpkSy1uK0A?e=ywMSWY) / [checkpoint](https://unioulu-my.sharepoint.com/:u:/g/personal/lsun24_univ_yo_oulu_fi/ET1EUbbzVABKlko3ibr2zNoBq1_h7UvQ_WP4-jhtH1M-SQ?e=vLzP80) |
-    |  Total (Reproduced)   | 43.51      | 56.31    | - |
-    |  Total (Reported)     | 41.19      | 54.28    | - |
-
-    Note that we lost the original ckpts for this dataset. However, the reproduced result is better than that reported in the paper.
-
-## ☎️ Contact 
-
-If you have any questions, please feel free to reach me out at `Licai.Sun@oulu.fi`.
-
-## 👍 Acknowledgements
-
-This project is built upon [VideoMAE](https://github.com/MCG-NJU/VideoMAE). Thanks for their great codebase.
-
-## ✏️ Citation
-
-If you think this project is helpful, please feel free to leave a star⭐️ and cite our paper:
-
+```bash
+python infer.py --video path/to/clip.mp4
 ```
-@article{sun2024svfap,
-  title={SVFAP: Self-supervised video facial affect perceiver},
-  author={Sun, Licai and Lian, Zheng and Wang, Kexin and He, Yu and Xu, Mingyu and Sun, Haiyang and Liu, Bin and Tao, Jianhua},
-  journal={IEEE Transactions on Affective Computing},
-  year={2024},
-  publisher={IEEE}
+
+> Update the commands above to match your actual scripts/CLI once finalized.
+
+---
+
+## 📌 Model Details
+
+- **Landmark dimension**: 256 (`D_lm`)
+- **Landmark Transformer layers**: 4
+- **Fusion Transformer layers**: 2
+- **Training**: 20 epochs, batch size 4, end-to-end fine-tuning, cross-entropy loss
+- **Augmentation**: random cropping, horizontal flipping (RGB), with corresponding landmark keypoint flipping
+
+---
+
+## 🔭 Future Work
+
+- Incorporating audio/speech features for richer multimodal signals
+- Validating generalization on Zoom, Microsoft Teams recordings
+- Semi-supervised / active learning to reduce labeled-data dependence
+- Scaling deployment beyond a single GPU instance
+
+---
+
+## 👥 Authors
+
+Salal Shabbir, Abdul Ahad, Laiba Ajmal, Areeha Zulfiqar, Unbreen
+Department of Software Engineering, University of the Punjab, Lahore, Pakistan
+
+---
+
+## 📄 Citation
+
+If you use this work, please cite:
+
+```bibtex
+@article{dgsvfap2026,
+  title={DG-SVFAP: Dual-Stream Visual-Geometric Spatiotemporal Facial Action Prior},
+  author={Shabbir, Salal and Ahad, Abdul and Ajmal, Laiba and Zulfiqar, Areeha and Unbreen},
+  institution={University of the Punjab},
+  year={2026}
 }
 ```
 
+## 📜 License
 
+Specify your license here (e.g., MIT, Apache 2.0).
