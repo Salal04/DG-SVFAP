@@ -146,7 +146,7 @@ python infer.py --video path/to/clip.mp4
 
 ## 👥 Authors
 
-Salal Shabbir, Abdul Ahad, Laiba Ajmal, Areeha Zulfiqar, Unbreen
+Salal Shabbir
 Department of Software Engineering, University of the Punjab, Lahore, Pakistan
 
 ---
@@ -158,12 +158,7 @@ If you use this work, please cite:
 ```bibtex
 @article{dgsvfap2026,
   title={DG-SVFAP: Dual-Stream Visual-Geometric Spatiotemporal Facial Action Prior},
-  author={Shabbir, Salal and Ahad, Abdul and Ajmal, Laiba and Zulfiqar, Areeha and Unbreen},
   institution={University of the Punjab},
   year={2026}
 }
 ```
-
-## 📜 License
-
-Specify your license here (e.g., MIT, Apache 2.0).
