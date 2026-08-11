@@ -8,6 +8,7 @@
 [![Demo](https://img.shields.io/badge/demo-SmartMeet-6366f1?style=for-the-badge)](https://smartmeet-platform.vercel.app/)
 [![EngageNet](https://img.shields.io/badge/dataset-EngageNet-0ea5e9?style=for-the-badge)](https://doi.org/10.1145/3577190.3614164)
 [![SVFAP](https://img.shields.io/badge/base-SVFAP-22c55e?style=for-the-badge)](https://doi.org/10.1109/TAFFC.2024.3432380)
+[![ROLE-D](https://img.shields.io/badge/ROLE--D-self--collected-f97316?style=for-the-badge)]()
 [![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)]()
 
 </div>
@@ -31,6 +32,7 @@ A live demo, **SmartMeet**, runs real-time engagement inference in-browser at ~3
 - **Landmark-Augmented Geometric Supervision** — MediaPipe landmarks capture gaze, head pose, and eye blinks
 - **SOTA on EngageNet** — outperforms all compared baselines
 - **SmartMeet Deployment** — browser-based, real-time engagement detection platform
+- **ROLE-D (Self-Collected)** — a real-world external evaluation dataset personally collected and annotated, used solely for unseen-participant testing
 
 ---
 
@@ -53,7 +55,9 @@ A live demo, **SmartMeet**, runs real-time engagement inference in-browser at ~3
 
 **Training/eval:** [EngageNet](https://doi.org/10.1145/3577190.3614164) — 31 hrs video, 127 participants, 11.2k clips (7.9k train / 2.2k test / 1k val), 4 engagement levels, 16 frames/clip @ 160×160, MediaPipe landmarks pre-extracted as `.npy`.
 
-**External evaluation:** **ROLE-D** (Real-World Online Learning Engagement Dataset) — 9 participants, natural home environments, unscripted. 1,003 ten-second clips: Highly Engaged (65%), Engaged (16%), Barely Engaged (6%), Not Engaged (13%). Kept fully separate from training/validation.
+**External evaluation:** **ROLE-D** (Real-World Online Learning Engagement Dataset) — 🟠 ***self-collected by the author***, 9 participants, natural home environments, unscripted. 1,003 ten-second clips: Highly Engaged (65%), Engaged (16%), Barely Engaged (6%), Not Engaged (13%). Kept fully separate from training/validation and used exclusively for external evaluation on unseen participants.
+
+> **Note:** Unlike EngageNet, ROLE-D was independently collected, recorded, and labeled as part of this project — not sourced from an existing public dataset.
 
 <div align="center">
 <img src="dataset-f.png" alt="Dataset Distribution" width="500"/>
