@@ -20,7 +20,7 @@ A live demo application, **SmartMeet**, is deployed at [smartmeet-platform.verce
 
 ## 🏗️ Architecture
 
-![Architecture Diagram](fig2%20%281%29.png)
+![Architecture Diagram](fig2.png)
 
 **Components:**
 
