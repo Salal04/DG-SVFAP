@@ -39,7 +39,7 @@ A live demo, **SmartMeet**, runs real-time engagement inference in-browser at ~3
 ## 🏗️ Architecture
 
 <div align="center">
-<img src="Fig2.png" alt="Architecture Diagram" width="600"/>
+<img src="Fig2.png" alt="Architecture Diagram" width="500"/>
 </div>
 
 | Module | Description |
@@ -60,7 +60,7 @@ A live demo, **SmartMeet**, runs real-time engagement inference in-browser at ~3
 > **Note:** Unlike EngageNet, ROLE-D was independently collected, recorded, and labeled as part of this project — not sourced from an existing public dataset.
 
 <div align="center">
-<img src="dataset-f.png" alt="Dataset Distribution" width="500"/>
+<img src="dataset-f.png" alt="Dataset Distribution" width="400"/>
 </div>
 
 The RGB backbone initializes from an SVFAP checkpoint pre-trained on VoxCeleb2 (1M+ segments, 6,000+ speakers, 145 nationalities). The landmark stream, fusion module, and classification head train from scratch; the full model is fine-tuned end-to-end.
