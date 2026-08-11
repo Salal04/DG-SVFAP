@@ -20,20 +20,7 @@ A live demo application, **SmartMeet**, is deployed at [smartmeet-platform.verce
 
 ## 🏗️ Architecture
 
-```
-                 ┌─────────────────────┐
-Video Frames ───▶│   SVFAP (RGB Stream) │──▶ f_rgb (B, 512)
-(B,C,T,H,W)      │  Vision Transformer  │
-                 └─────────────────────┘
-                                              ┌───────────────┐
-                                              │  Concatenate  │
-Landmarks   ───▶┌──────────────────────┐     │  + Linear Proj│──▶ Transformer
-(B,T,L)         │ Landmark Stream       │────▶│  (768 → 512)  │    Fusion (×2)
-                │ Linear Proj + Pos Enc │     └───────────────┘        │
-                │ + Transformer (×4)    │                              ▼
-                │ + Temporal Mean Pool  │                     Classification Head
-                └──────────────────────┘──▶ f_lm (B, 256)      (Linear → K classes)
-```
+![Architecture Diagram](fig2%20%281%29.png)
 
 **Components:**
 
