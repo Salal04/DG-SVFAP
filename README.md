@@ -1,48 +1,77 @@
-# DG-SVFAP: Dual-Stream Visual-Geometric Spatiotemporal Facial Action Prior
+<div align="center">
 
-DG-SVFAP is a dual-stream deep learning architecture for **engagement detection in online meetings and e-learning platforms**. It extends [SVFAP](https://doi.org/10.1109/TAFFC.2024.3432380) (Self-supervised Video Facial Affect Perceiver) with a dedicated facial-landmark stream, fused through a lightweight Transformer, to jointly capture appearance-level spatiotemporal patterns and structured facial geometry (gaze, head pose, eye blinks).
+# DG-SVFAP
+### Dual-Stream Visual-Geometric Spatiotemporal Facial Action Prior
 
-The model achieves **71.9% validation accuracy** and **71.2% test accuracy** on the [EngageNet](https://doi.org/10.1145/3577190.3614164) dataset, outperforming baselines including MARLIN, TCCT-Net, and Ordinal ST-GCN.
+**Engagement detection for online meetings & e-learning — extending SVFAP with a facial-landmark stream**
 
-A live demo application, **SmartMeet**, is deployed at [smartmeet-platform.vercel.app](https://smartmeet-platform.vercel.app/), running real-time engagement inference in the browser with ~37ms latency per 10-second clip on a single T4 GPU, supporting up to 540 concurrent participants.
+[![Demo](https://img.shields.io/badge/demo-SmartMeet-6366f1?style=for-the-badge)](https://smartmeet-platform.vercel.app/)
+[![EngageNet](https://img.shields.io/badge/dataset-EngageNet-0ea5e9?style=for-the-badge)](https://doi.org/10.1145/3577190.3614164)
+[![SVFAP](https://img.shields.io/badge/base-SVFAP-22c55e?style=for-the-badge)](https://doi.org/10.1109/TAFFC.2024.3432380)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)]()
+
+</div>
+
+---
+
+DG-SVFAP extends [SVFAP](https://doi.org/10.1109/TAFFC.2024.3432380) (Self-supervised Video Facial Affect Perceiver) with a dedicated **facial-landmark stream**, fused through a lightweight Transformer, to jointly capture appearance-level spatiotemporal patterns and structured facial geometry (gaze, head pose, eye blinks).
+
+On **[EngageNet](https://doi.org/10.1145/3577190.3614164)**, the model reaches **71.9%** validation accuracy and **71.2%** test accuracy — outperforming MARLIN, TCCT-Net, and Ordinal ST-GCN.
+
+A live demo, **SmartMeet**, runs real-time engagement inference in-browser at ~37ms per 10-second clip on a single T4 GPU, supporting up to 540 concurrent participants.
+
+**🔗 [Try SmartMeet](https://smartmeet-platform.vercel.app/)**
 
 ---
 
 ## ✨ Key Contributions
 
-- **Dual-Stream Architecture** — Extends SVFAP by adding a parallel facial-landmark stream alongside the RGB video stream.
-- **Cross-Modal Fusion Module** — Concatenates RGB and landmark features and refines them via a lightweight Transformer encoder.
-- **Landmark-Augmented Geometric Supervision** — Uses MediaPipe-extracted facial landmarks to capture gaze direction, head pose, and eye blink patterns.
-- **SOTA Performance on EngageNet** — Outperforms all compared baselines.
-- **SmartMeet Deployment** — Browser-based, real-time engagement detection platform.
+- **Dual-Stream Architecture** — parallel facial-landmark stream alongside the RGB video stream
+- **Cross-Modal Fusion Module** — concatenates RGB + landmark features, refined via a lightweight Transformer encoder
+- **Landmark-Augmented Geometric Supervision** — MediaPipe landmarks capture gaze, head pose, and eye blinks
+- **SOTA on EngageNet** — outperforms all compared baselines
+- **SmartMeet Deployment** — browser-based, real-time engagement detection platform
 
 ---
 
-## Dataset 
-
-For real-world evaluation, we created ROLE-D (Real-World Online Learning Engagement Dataset), a small internal dataset collected from 9 participants in their natural home environments. Participants watched online lectures normally without scripted reactions or engagement instructions, allowing naturally occurring variations in engagement to be captured. The recordings were divided into 1,003 ten-second clips and categorized as Highly Engaged (65%), Engaged (16%), Barely Engaged (6%), and Not Engaged (13%). ROLE-D was kept completely separate from model training and validation and was used exclusively for external evaluation on unseen participants.
-![Architecture Diagram](dataset-f.png)
-
 ## 🏗️ Architecture
 
-![Architecture Diagram](Fig2.png)
-
-**Components:**
+<div align="center">
+<img src="Fig2.png" alt="Architecture Diagram" width="600"/>
+</div>
 
 | Module | Description |
 |---|---|
-| **RGB Stream** | SVFAP backbone (pre-trained on VoxCeleb2), outputs pooled feature `f_rgb ∈ R^512` |
-| **Landmark Stream** | Linear projection + learnable temporal positional encoding → 4-layer Transformer encoder → temporal mean pooling → `f_lm ∈ R^256` |
-| **Fusion Module** | Concatenation → linear projection (768→512) → 2-layer Transformer encoder for cross-modal attention |
-| **Classification Head** | Linear layer mapping fused features to engagement class scores |
+| **RGB Stream** | SVFAP backbone (pre-trained on VoxCeleb2) → `f_rgb ∈ R^512` |
+| **Landmark Stream** | Linear projection + learnable temporal positional encoding → 4-layer Transformer → temporal mean pooling → `f_lm ∈ R^256` |
+| **Fusion Module** | Concatenation → linear projection (768→512) → 2-layer Transformer for cross-modal attention |
+| **Classification Head** | Linear layer → engagement class scores |
+
+---
+
+## 📁 Dataset
+
+**Training/eval:** [EngageNet](https://doi.org/10.1145/3577190.3614164) — 31 hrs video, 127 participants, 11.2k clips (7.9k train / 2.2k test / 1k val), 4 engagement levels, 16 frames/clip @ 160×160, MediaPipe landmarks pre-extracted as `.npy`.
+
+**External evaluation:** **ROLE-D** (Real-World Online Learning Engagement Dataset) — 9 participants, natural home environments, unscripted. 1,003 ten-second clips: Highly Engaged (65%), Engaged (16%), Barely Engaged (6%), Not Engaged (13%). Kept fully separate from training/validation.
+
+<div align="center">
+<img src="dataset-f.png" alt="Dataset Distribution" width="500"/>
+</div>
+
+The RGB backbone initializes from an SVFAP checkpoint pre-trained on VoxCeleb2 (1M+ segments, 6,000+ speakers, 145 nationalities). The landmark stream, fusion module, and classification head train from scratch; the full model is fine-tuned end-to-end.
 
 ---
 
 ## 📊 Results
 
-### SOTA Comparison (EngageNet Validation Set)
+<table>
+<tr>
+<td valign="top" width="50%">
 
-| Method | Validation Accuracy |
+**SOTA Comparison** (EngageNet Val)
+
+| Method | Val Acc |
 |---|---|
 | ResNet-TCN | 54.2% |
 | CNN-LSTM | 65.2% |
@@ -52,40 +81,34 @@ For real-world evaluation, we created ROLE-D (Real-World Online Learning Engagem
 | Ordinal ST-GCN | 71.2% |
 | **DG-SVFAP (Ours)** | **71.9%** |
 
-### Ablation Study
+</td>
+<td valign="top" width="50%">
 
-| Configuration | Validation Accuracy |
+**Ablation Study**
+
+| Configuration | Val Acc |
 |---|---|
-| Landmark Stream Only | 64.5% |
+| Landmark Only | 64.5% |
 | SVFAP (RGB only) | 69.0% |
-| Full Model w/o Augmentation | 66.0% |
+| Full Model w/o Aug. | 66.0% |
 | **DG-SVFAP (Full)** | **71.9%** |
 
----
-
-## 📁 Dataset
-
-Trained and evaluated on **[EngageNet](https://doi.org/10.1145/3577190.3614164)**:
-- 31 hours of video, 127 participants, varied lighting conditions
-- 11.2k video clips → 7.9k train / 2.2k test / 1k validation
-- Annotated into 4 engagement levels (5th "Subject Not Present" class excluded during preprocessing)
-- 16 frames sampled per clip, resized to 160×160
-- Facial landmarks pre-extracted per frame via MediaPipe and stored as `.npy` files (zero-filled when detection fails)
-
-The RGB backbone is initialized from an SVFAP checkpoint pre-trained on VoxCeleb2 (self-supervised, 1M+ video segments, 6,000+ speakers, 145 nationalities). The landmark stream, fusion module, and classification head are trained from scratch, with the full model fine-tuned end-to-end.
+</td>
+</tr>
+</table>
 
 ---
 
 ## 🚀 SmartMeet — Live Deployment
 
-SmartMeet is a browser-based engagement detection platform built on top of DG-SVFAP:
+| | |
+|---|---|
+| **Client-side** | face detection + landmark extraction, fully in-browser |
+| **Server-side** | inference on T4 GPU backend |
+| **Latency** | ~37ms per 10-second clip |
+| **Scale** | up to 540 concurrent participants, horizontally scalable |
 
-- **Client-side**: face detection and landmark extraction run in-browser (no software install required)
-- **Server-side**: inference on a T4 GPU backend
-- **Latency**: ~37ms per 10-second clip
-- **Scale**: supports up to 540 concurrent participants; horizontally scalable across backend instances
-
-🔗 Try it: [smartmeet-platform.vercel.app](https://smartmeet-platform.vercel.app/)
+**🔗 [smartmeet-platform.vercel.app](https://smartmeet-platform.vercel.app/)**
 
 ---
 
@@ -97,18 +120,12 @@ cd DG-SVFAP
 pip install -r requirements.txt
 ```
 
-### Training
-
+**Training**
 ```bash
-python train.py \
-  --dataset engagenet \
-  --backbone svfap_checkpoint.pth \
-  --epochs 20 \
-  --batch_size 4
+python train.py --dataset engagenet --backbone svfap_checkpoint.pth --epochs 20 --batch_size 4
 ```
 
-### Inference
-
+**Inference**
 ```bash
 python infer.py --video path/to/clip.mp4
 ```
@@ -119,11 +136,11 @@ python infer.py --video path/to/clip.mp4
 
 ## 📌 Model Details
 
-- **Landmark dimension**: 256 (`D_lm`)
-- **Landmark Transformer layers**: 4
-- **Fusion Transformer layers**: 2
-- **Training**: 20 epochs, batch size 4, end-to-end fine-tuning, cross-entropy loss
-- **Augmentation**: random cropping, horizontal flipping (RGB), with corresponding landmark keypoint flipping
+- Landmark dimension: **256** (`D_lm`)
+- Landmark Transformer layers: **4**
+- Fusion Transformer layers: **2**
+- Training: 20 epochs, batch size 4, end-to-end fine-tuning, cross-entropy loss
+- Augmentation: random cropping, horizontal flipping (RGB) with matching landmark keypoint flips
 
 ---
 
@@ -136,16 +153,18 @@ python infer.py --video path/to/clip.mp4
 
 ---
 
-## 👥 Authors
+<div align="center">
 
-Salal Shabbir
+## 👥 Author
+
+**Salal Shabbir**
 Department of Software Engineering, University of the Punjab, Lahore, Pakistan
+
+</div>
 
 ---
 
 ## 📄 Citation
-
-If you use this work, please cite:
 
 ```bibtex
 @article{dgsvfap2026,
