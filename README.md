@@ -66,6 +66,10 @@ A live demo, **SmartMeet**, runs real-time engagement inference in-browser at ~3
 The RGB backbone initializes from an SVFAP checkpoint pre-trained on VoxCeleb2 (1M+ segments, 6,000+ speakers, 145 nationalities). The landmark stream, fusion module, and classification head train from scratch; the full model is fine-tuned end-to-end.
 
 ---
+## Traing stratigies
+- Full parameter fine-tuning
+- Lora 
+Replace the files available in lora folder to user lora 
 
 ## 📊 Results
 
