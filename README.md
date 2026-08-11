@@ -18,7 +18,7 @@ A live demo application, **SmartMeet**, is deployed at [smartmeet-platform.verce
 
 ---
 
-##Dataset 
+## Dataset 
 
 For real-world evaluation, we created ROLE-D (Real-World Online Learning Engagement Dataset), a small internal dataset collected from 9 participants in their natural home environments. Participants watched online lectures normally without scripted reactions or engagement instructions, allowing naturally occurring variations in engagement to be captured. The recordings were divided into 1,003 ten-second clips and categorized as Highly Engaged (65%), Engaged (16%), Barely Engaged (6%), and Not Engaged (13%). ROLE-D was kept completely separate from model training and validation and was used exclusively for external evaluation on unseen participants.
 ![Architecture Diagram](dataset-f.png)
